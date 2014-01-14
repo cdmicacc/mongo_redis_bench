@@ -29,6 +29,9 @@ class Benchmarker
       worker.wait
     end
 
+    puts "Checking seeds..."
+    SeedWorker.check(benchmark_name)
+
     puts "Done seeding"
   rescue
     workers.each { |worker| Process.kill("TERM", worker.pid) if worker.pid rescue nil }

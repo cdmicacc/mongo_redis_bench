@@ -7,6 +7,10 @@ class SeedWorker
 
   attr_accessor :pid
 
+  def self.check(benchmark_name)
+    send("check_#{benchmark_name}")
+  end
+
   def launch(benchmark_name, start, count)
     @pid = Process.fork
     if @pid.nil?
@@ -22,6 +26,25 @@ class SeedWorker
   end
 
   private
+
+  def self.check_redis
+    redis = Redis.new(host: 'localhost', db: REDIS_DB)
+
+    puts "Key count: #{redis.info["db#{REDIS_DB}"]}"
+  end
+
+  def self.check_mongo
+    mongo =  Mongo::MongoClient.new('localhost', 27017, w: 1).db('benchmark')
+    collection = mongo.collection('mongo_raw')
+
+    puts "Document count: #{collection.count}"
+  end
+
+  def self.check_mongoid
+    Mongoid.database = Mongo::MongoClient.new('localhost', 27017, w: 1).db('benchmark')
+
+    puts "Document count: #{MongoDoc.all.count}"
+  end
 
   def seed_redis(start, count)
     redis = Redis.new(host: 'localhost', db: REDIS_DB)
@@ -43,6 +66,8 @@ class SeedWorker
     count.times do |i|
       collection.insert({ _id: start + i, counter: rand(10000) })
     end
+
+
   end
 
   def seed_mongoid(start, count)
