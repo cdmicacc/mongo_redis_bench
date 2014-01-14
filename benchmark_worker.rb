@@ -47,6 +47,15 @@ class BenchmarkWorker
     end
   end
 
+  def benchmark_hiredis(record_count)
+    redis = Redis.new(host: 'localhost', db: REDIS_DB, driver: :hiredis)
+
+    benchmark(record_count) do |i, rand|
+      key = "tmp_key_#{rand}"
+      redis.hincrby(key, "value", 1)
+    end
+  end
+
   def benchmark_mongo_safe(record_count)
     mongo =  Mongo::MongoClient.new('localhost', 27017, w: 1).db('benchmark')
     collection = mongo.collection('mongo_raw')

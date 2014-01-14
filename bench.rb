@@ -10,6 +10,7 @@ Mongo::WriteConcern.class_variable_set('@@safe_warn', true)
 Benchmarker.new("mongoid").seed
 
 Benchmarker.new("redis").benchmark
+Benchmarker.new("hiredis").benchmark
 Benchmarker.new("mongo_unsafe").benchmark
 Benchmarker.new("mongo_safe").benchmark
 Benchmarker.new("mongoid_safe").benchmark
