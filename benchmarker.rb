@@ -11,6 +11,9 @@ class Benchmarker
   def seed(seed_size = 1_000_000, worker_count = 20)
     workers = []
 
+    puts "Clearing existing seeds for #{benchmark_name}"
+    SeedWorker.clear(benchmark_name)
+
     puts "Seeding #{seed_size} into #{benchmark_name} with #{worker_count} workers"
     count_per_worker = seed_size / worker_count
 
@@ -30,7 +33,7 @@ class Benchmarker
     end
 
     puts "Checking seeds..."
-    SeedWorker.check(benchmark_name)
+    SeedWorker.check(benchmark_name, seed_size)
 
     puts "Done seeding"
   rescue
