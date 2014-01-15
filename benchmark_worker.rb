@@ -47,6 +47,15 @@ class BenchmarkWorker
     end
   end
 
+  def benchmark_hiredis(record_count)
+    redis = Redis.new(host: 'localhost', db: REDIS_DB, driver: :hiredis)
+
+    benchmark(record_count) do |i, rand|
+      key = "tmp_key_#{rand}"
+      redis.hincrby(key, "value", 1)
+    end
+  end
+
   def benchmark_mongo_safe(record_count)
     mongo =  Mongo::MongoClient.new('localhost', 27017, w: 1).db('benchmark')
     collection = mongo.collection('mongo_raw')
@@ -69,7 +78,7 @@ class BenchmarkWorker
   def benchmark_mongoid_safe(record_count)
     Mongoid.database = Mongo::MongoClient.new('localhost', 27017, w: 1).db('benchmark')
     benchmark(record_count) do |i, rand|
-      doc = MongoDoc.safely(w: 1).find(rand)
+      doc = MongoDoc.safely(w: 1).where(_id: rand).first
       doc.safely(w: 1).inc(:counter, 1)
     end
   end
@@ -78,7 +87,7 @@ class BenchmarkWorker
     Mongoid.database = Mongo::MongoClient.new('localhost', 27017, w: 0).db('benchmark')
 
     benchmark(record_count) do |i, rand|
-      doc = MongoDoc.find(rand)
+      doc = MongoDoc.where(_id: rand).first
       doc.inc(:counter, 1)
     end
   end
