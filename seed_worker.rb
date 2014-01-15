@@ -36,7 +36,7 @@ class SeedWorker
 
     key_count = nil
     loop do
-      key_count = redis.info["db#{REDIS_DB}"].split(/[,=]/)[1]
+      key_count = redis.info["db#{REDIS_DB}"].split(/[,=]/)[1].to_i
       break if key_count == seed_size
 
       puts "Waiting for writes to complete: #{key_count}"
